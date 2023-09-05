@@ -10,7 +10,7 @@ using System.Text.Json;
 
 namespace KitchenService
 {
-    public class RabbitReceiver : IHostedService
+    public class RabbitReceiver //: IHostedService
     {
         private readonly RabbitMqSettings _rabbitSettings;
         private readonly IModel _channel;
@@ -29,17 +29,17 @@ namespace KitchenService
         }
 
 
-        public  Task StartAsync(CancellationToken cancellationToken)
-        {
-           DoStuff();
-           return Task.CompletedTask;
-        }
+        //public  Task StartAsync(CancellationToken cancellationToken)
+        //{
+        //   DoStuff();
+        //   return Task.CompletedTask;
+        //}
 
-        public Task StopAsync(CancellationToken cancellationToken)
-        {
-            _channel.Dispose();
-            return Task.CompletedTask;
-        }
+        //public Task StopAsync(CancellationToken cancellationToken)
+        //{
+        //    _channel.Dispose();
+        //    return Task.CompletedTask;
+        //}
 
         //[RabbitListener(Binding = "waffle.binding")]
         //private async Task Listen(string input)
@@ -48,13 +48,15 @@ namespace KitchenService
         //    await _orderHub.Clients.All.SendAsync("new-order", order);
         //}
         [RabbitListener(Binding = "waffle.binding")]
-        private void DoStuff()
+        public void DoStuff(string orderMessage)
         {
-            Console.WriteLine("Success");
+            Console.WriteLine("Success: Received Order"+ orderMessage );
+            var order = JsonSerializer.Deserialize<Order>(orderMessage);
+            _orderHub.Clients.All.SendAsync("new-order", order);
             //_channel.QueueBind(queue: _rabbitSettings.QueueName,
             //                  exchange: _rabbitSettings.ExchangeName,
             //                  routingKey: _rabbitSettings.RoutingKey);
-            
+
 
             //var consumerAsync = new AsyncEventingBasicConsumer(_channel);
             ////_template.AddListener();
